@@ -1,0 +1,704 @@
+AEM training
+==========
+16/12/2024
+==========
+Installation:
+	-> Install Author (port = 4502) and provider directory 
+	-> Run one by one not together otherwise system will crash
+	-> localhost default username and pwd is admin
+
+CMS(Content Management System)->
+	-> provides most of the infrastructure
+	-> reusability
+	-> Create and publish content
+	-> No technical expertise needed for content
+
+Types of CMS
+	-> Traditional CMS
+		-> Coupled CMS(logic is binded to redering framewok)
+		-> Decoupled CMS(logic is not binded to redering framewok)
+	-> Headless CMS(CMS can deliever only content)
+	-> Hybrid CMS  (provides headless as well as traditional functionality)
+
+Note: AEM is Hybrid, decoupled CMS
+
+CMS contents
+	-> Content Management System
+	-> Content delivery/ Application
+	-> Front end/ presentation
+
+CMS provides
+	-> CMS
+	-> Digital Assest management
+	-> User/Permissions management
+	-> Headless feature
+	-> Built and run websites
+
+AEM
+	-> Comprehensive content management solution for building websites, mobile apps, and forms.
+	-> make it easy to mange marketing content and assets.
+	-> AEM is a part of Adobe Experience cloud.
+
+Types of AEM
+	-> On premises/ Stand alone
+	-> Cloud based
+		-> instances are installed over cloud.
+		-> AEM is a Cloud Service
+			-> Standalone JAR/local
+				-> works same as standalone jar
+			-> Sandbox
+
+AEM provides
+	-> Sites
+	-> Assets
+	-> Forms- Add on package
+
+AEM features
+	-> CMS
+	-> Digital Assest management
+	-> User/Permissions management
+	-> Forms Management
+	-> Headless feature
+	-> Built and run websites
+	-> Frontend tech/ Other FE framework Integrations
+	-> Servlet/OSGI container
+
+AEM Instances
+	-> it is a running AEM software
+	-> Environments/RunModes
+	-> Dispatcher(Tiny modules such as Apache)
+
+Type of AEM Instances
+	-> Author 
+		-> Type of Instance when we create content
+	-> Publish/publisher
+		-> Type of Instance which serve content to end user
+
+Environments/RunModes( change behaviour of environments/execution based on type of instance using this Runmodes )
+	-> dev
+	-> qa
+	-> stage
+	-> prod
+	-> Any Name
+
+How to create Content in AEM?
+	-> Author: Where we create content.
+
+	-> Publish: All end user access this instance.
+
+	-> replication: Create content and move that content author to publish called as replicate/publish.
+
+
+AEM environments:
+
+Author(we create author content)
+	-> Publish1(this instances serve content)
+	-> Publish2
+
+	-> webserver: 
+		-> No way to distribute load only with publish instance. So, we add web server in between end users and publish instance.
+		-> Adobe provide tiny module called Dispatcher, with the help of it publish instance can communicate with web server.
+		-> there is load balancer to handle load.
+		-> web server can itself worked as Load balancer.
+   
+
+AEM Sections and Consoles:
+
+	-> Start console:
+	-> System console:
+		-> Go to "http://localhost:4502/system/console/bundles"
+		-> All project related bundles installed here.
+	-> Dev console:
+	-> Package Manager
+
+CRXDE
+	-> It is a Tiny IDE
+	-> Go to "http://localhost:4502/crx/de/index.jsp"
+	-> check data at repsosiotry level 
+	-> this IDE/console showyou how to stored content? what is stored? Where it is stored?
+
+	Project Directory structure:
+		apps-> project specific code will be here
+		bin-> 
+		conf->
+		content-> content is stored
+		home-> users and groups are here
+		libs-> code/functionality aem uses ,not write anything under libs
+
+How to deploy website from one instance to another instance?
+
+package manager
+	-> Go to "http://localhost:4502/crx/packmgr/index.jsp"
+	-> Create package, give package name, version. Click OK.
+	-> Edit -> filters -> content>we-retail -> SAVE -> BUILD -> Download
+	-> Upload package by selecting path.
+
+AEM Sites
+	-> AEM built on JCR
+	-> AEM uses JCR(Java Content Repository) to save data.
+	-> Nowdays we can use MongoDB.
+
+==========
+17/12/2024
+==========
+Page Operations & properties
+	-> Go to sites -> select lang. -> select we-retail -> create -> select page -> Choose template
+		title : name of site
+		name : url (bedfault take title in lower-case)
+
+	-> editor.html -> open in edit mode
+
+Note : Everything is component in AEM
+
+	layout : Edit->layout mode
+
+	Toggle side pannel:
+		contains assets, Can add images
+
+	Menu :
+		Rollout page
+		Start workflow
+		Page lock(access/deny page operation)
+		Publish 
+		Edit template
+		View in publish mode (http://localhost:4502/content/we-retail/language-masters/en/test-page.html?wcamode=disabled)
+		
+	Test page :
+	properties -> whatever u add related to this page only.(its local)	
+		   -> Page prop. is always store in JCR format.
+
+AEM Editable Template
+	-> Go to -> Tools -> General -> Templates -> Create
+
+Note -> Before creating template developers has been created all dependencies.
+	-> All structures created under conf folder(CRX/DE)
+
+	-> After creation of template go to home page.
+	-> go to sites-> page -> select created template -> create page
+	-> Here you not abled to see any drag/drop box
+	-> you need to enable those component in test template
+	-> Go to testTemplate -> unlock first -> select component -> select policy icon -> select we-retail default policy
+	-> Can create custom policy by changing name to Custom Policy only -> remove er-retail commerce and we-retail policy
+	 from them and save them. You can able to see only two components in Test page
+	
+	## Define page properties already reloaded when it is visited
+	-> go to Test template -> inital page properties
+
+
+Structure(Test Template):
+	-> Structure : can add component to structure as well.
+		-> what ever u add in structure its dynamically binded with all pages.(if u make changes in template it will reflect in all pages)
+		-> You can't added or delete in pages only in template
+	-> Initial Content : 
+		-> can able to add content to template -> it will reflect into a new page as well when we create.
+		Note: image component is not avail in old page 
+		while creating page, whatever component u created is avai for those page, but is not avai for old pages 
+		there is static relation between those page
+	-> layout
+
+
+AEM Templates
+How to open templates?
+	-> go to tools
+	-> select your template
+	-> open edit mode. and select structure.
+
+
+==========
+18/12/2024
+==========
+AEM Components:
+	-> using AEM components, reuse piece of code along with u have UI , we can add custom content, can do styling
+
+	-> Building block of components creation and content rendering
+	-> can save user content:
+		-> we have dialog 
+	-> access content and save content in JCR
+		-> sling model (can access that content using sling model)
+	-> can Add styling
+		-> clientlibs (can write folder inside that htmls, css, js, font style and club together using clientlib)
+	-> can Render content
+		-> Slightly/HTL (lang. specific to AEM, supported by Sling, Apache, it is a simple HTML having a placeholder)
+	
+	-> AEM component cycle:
+		When drag n drop component in page, node is created inside JCR(having content in key-value pair)
+				||
+		Dialog - Authoring Component
+		(Open Dialog)
+			 	||
+		Save content in Repository
+		(Save content in node in that prop. called it as Authoring.)
+			FIRST PHASE AUTHORING OVER
+				||
+		Sling Model - Access content for repository
+		(as soon as page reload, sling model kicks in. This backend gets all values from JCR , it provide to frontend.)
+				||
+		Page Load - Load clientlibs(CSS/JS)
+		(Client library will also load as soon as page reload.)
+				||
+		Slightly load content from Sling Model in Component.
+		(Slighly has some placeholders. So, whatever content Slightly has will inject that data inside palceholder avaai. in HTL classes.)
+			SECOND PHASE RENDERING OVER
+	
+	Another components:
+		-> Foundation Components
+		-> Core Components (This are starting point)
+
+AEM Content level policies
+	-> Content policies are template-level configuration for the templates and its components.
+	-> The content policies define the design properties of a component.
+
+	1) page-level policies
+	2) component-level policies -> has specific section as per component.
+
+Lock and Unlock structures
+	-> strc is lock all components is gone. u can't able to edit, view.
+	-> if u want to access unlock
+
+==========
+19/12/2024
+==========
+
+Note : Opening of classic UI (" http://localhost:4502/miscadmin#/ ")
+	Another way: Operations-> configuration -> classic UI
+
+ClientLibs 
+	-> clientlib generated by plugins
+	-> can html, css, js files keep inside in it.
+	-> project folder creation ->
+		-> right click on apps->we-retail->clientlibs-> create Node having type:cq(clientLibraryfolder)->save
+		-> inside at bottom of properties add categories along with value-> save
+	-> create folder css and js inside aem-demo
+		create a css/js files and add into a css.txt/ js.txt to load that files -> save
+		eg.	#base=css   (this is base folder inside this i want to load this it is optional)
+			color.css
+			button.css
+	-> Go to templates -> page policy -> name policy -> select client lib add that u have created
+
+AEM Component Styles
+	-> can define classes in your component policy and page policy. 
+	-> this classes can be choose content author based on those selection diff. style can be applied. (All CSS, Js written)client library
+	-> Style system include
+		-> ClientLibs(CSS, Js)
+		-> Style name to Content/page policy
+		-> Choose style while authoring
+			-> Template Author
+			-> content Author (This are group used to mention two diff. users)
+ 
+AEM page versioning
+	-> can create snapshot/backup of page at a specific point of time. can have multiple backup 
+	Operations->
+		-> create a version of a page.
+		-> restore a page to a previous version.
+		-> compare curent version of page with a previous version with differences in the text and images highlighted.
+
+	backup of page-> 
+		open site -> select template-> lang-> site page -> edit -> version -> create -> give name and labe
+
+Replication agents
+	->connection between in two or more isntances we need replication agents.
+	-> 
+	-> replication agents includes:
+		agents on publish
+			-> dispatcher flush: triggered on modification and flush req to dispatcher
+			-> reverse replication: Agents that stores reverse replicated content in the outbox.
+			-> Dispatcher resourceOnly Flush: agent that is triggered on modification and sends flush requests to the dispatcher.
+		agents on author
+			-> Default Agent (publish): Agent that replicates to the default publish instance.
+			-> Dispatcher Flush (flush): Agent that sends flush requests to the dispatcher.
+			-> Reverse replication agent: Create on publish and create on author.
+			and Many more...
+		activate tree
+			-> u can activate entire site in one go.
+			-> select parent page -> deselect only modified and ignore deactivated
+			-> it will activate whatever under we-retail
+	-> Go to tools, deployment, replication
+	-> reverse application agents.
+
+	Steps:
+		-> Go to classic UI (" http://localhost:4502/miscadmin#/ ")->Replication-> Agents on author -> New -> Replication agent -> name it -> create
+		-> Change settings of Replication agent:
+			-> Enabled tick
+			-> Serialization typr: default
+			-> retry delay :6000
+			Transport:
+			-> uri: "http://localhost:4502/bin/receive?sling:authRequestLogin=1"
+			-> user and pwd
+			-> OK (it is green means enabled)
+
+
+Aem workflow
+	-> AEM workflow allows you to automate series of steps that are performed on (one or more ) pages and/or assets.
+
+	-> Go to tools-> workflow
+	-> create -> new workflow -> add steps from left pannel (eg. create version) remove unused steps. -> Sync
+
+==========
+20/12/2024
+==========
+
+PoC (Proof Of Concept) in AEM
+
+feasibility -> posibility of idea
+viable -> workable
+Applicable -> relevant to user scenarios
+practical -> resources 
+
+1-> Prove the need
+2-> Problem<->solution mapping
+3-> Prototype creation
+4-> Create MVN(Minimum Viable Product)
+5-> Learning And Roadmap
+
+What is PoC Deliverables?
+ PoC deliverables in AEM are the specific outcomes or results you produce to demonstrate that your proposed solution works. 
+
+Example:
+---------------------------------------------------------------
+User Requirements:
+---------------------------------------------------------------
+1. Dynamic Article Repository:
+Create a section to manage articles dynamically, including adding, editing, deleting, and archiving articles.
+Each article should have metadata like title, description, author, publication date, tags, and status (Published/Unpublished/Archived).
+
+2. Personalized Content Delivery:
+Deliver personalized articles to users based on their preferences and browsing behavior.
+Implement category-based filtering (e.g., Sports, Technology, Health, etc.).
+Use geolocation to further refine content delivery.
+
+3. Admin Approval Workflow:
+Introduce an approval mechanism where changes to articles are not published directly.
+Admin reviews and approves/rejects the content changes.
+Notify the author of the decision.
+
+4. Content Versioning:
+Maintain versions of each article to track changes over time.
+Allow admins to roll back to previous versions when necessary.
+
+5. Analytics Dashboard:
+Provide a dashboard displaying user engagement metrics (e.g., most viewed articles, categories with the highest readership).
+Store analytics data in a database for retrieval and display.
+
+6. Responsive Design:
+Ensure the article display components are fully responsive and compatible with both desktop and mobile devices.
+
+---------------------------------------------------------------
+PoC Deliverables:
+---------------------------------------------------------------
+
+Backend:
+Sling Models for dynamic article fetching.
+Servlets for handling personalization logic and geolocation-based filtering.
+JCR (Java Content Repository) implementation for storing articles and metadata.
+---------------------------------------------------------------
+Frontend:
+HTL (Sightly) templates and components for article listing and detail view.
+Clientlibs for CSS and JavaScript to handle responsive design and interactivity.
+---------------------------------------------------------------
+Workflow:
+Custom AEM workflow for article approval and notification.
+---------------------------------------------------------------
+Versioning:
+Enable OOTB (Out-of-the-Box) versioning for articles in AEM.
+Provide a UI to list and restore previous versions.
+---------------------------------------------------------------
+Analytics Integration:
+Integrate Google Analytics or an AEM-compatible analytics tool.
+Provide basic charts on the analytics dashboard using a Java-based library like Apache POI or external chart libraries.
+---------------------------------------------------------------
+Implementation Plan:
+1. Define Article Structure:
+Create a content structure under /content/poc/articles.
+Include metadata fields like category, status, and geolocation preferences.
+
+2.Create Dynamic Components:
+Develop an "Article List" component to display articles dynamically.
+Develop an "Article Detail" component to display full content.
+
+3. Personalization:
+Use ContextHub or a custom logic in servlets to fetch user preferences and geolocation.
+Filter articles based on the user data.
+
+4. Custom Workflow:
+Define a workflow with steps for author submission, admin review, and notification.
+
+5. Testing:
+Test the POC in both author and publish environments.
+Validate the workflow, personalization logic, and versioning.
+
+---------------------------------------------------------------
+PoC: Dynamic Article Management with Personalization in AEM**
+---------------------------------------------------------------
+### **1. Project Structure**
+
+#### **Content Repository Structure**:
+- `/content/poc/articles` (Root for articles)
+  - `article1` (An example article node)
+    - `title` (String)
+    - `description` (String)
+    - `author` (String)
+    - `publicationDate` (Date)
+    - `tags` (String[])
+    - `status` (String: Published/Unpublished/Archived)
+
+#### **Component Structure**:
+- `/apps/poc/components`
+  - `articleList` (List of articles component)
+  - `articleDetail` (Individual article component)
+  - `analyticsDashboard` (Analytics dashboard component)
+
+---------------------------------------------------------------
+
+### **2. Backend Implementation**
+
+#### **A. Sling Model for Article Retrieval**:
+```java
+package com.poc.core.models;
+
+import com.adobe.cq.sightly.WCMUsePojo;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.Self;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
+@Model(adaptables = Resource.class)
+public class ArticleListModel {
+
+    @Inject
+    private Resource currentResource;
+
+    public List<Article> getArticles() {
+        List<Article> articles = new ArrayList<>();
+        Resource articlesResource = currentResource.getChild("articles");
+        if (articlesResource != null) {
+            for (Resource articleResource : articlesResource.getChildren()) {
+                Article article = new Article(
+                    articleResource.getValueMap().get("title", String.class),
+                    articleResource.getValueMap().get("description", String.class),
+                    articleResource.getValueMap().get("author", String.class),
+                    articleResource.getValueMap().get("publicationDate", String.class),
+                    articleResource.getValueMap().get("status", String.class)
+                );
+                articles.add(article);
+            }
+        }
+        return articles;
+    }
+}
+
+class Article {
+    private String title;
+    private String description;
+    private String author;
+    private String publicationDate;
+    private String status;
+
+    public Article(String title, String description, String author, String publicationDate, String status) {
+        this.title = title;
+        this.description = description;
+        this.author = author;
+        this.publicationDate = publicationDate;
+        this.status = status;
+    }
+
+    // Getters and setters omitted for brevity
+}
+```
+
+#### **B. Servlet for Personalization**:
+```java
+package com.poc.core.servlets;
+
+import com.google.gson.Gson;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.servlets.HttpConstants;
+import org.apache.sling.api.servlets.SlingAllMethodsServlet;
+import org.osgi.service.component.annotations.Component;
+
+import javax.servlet.Servlet;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component(service = Servlet.class,
+           property = {
+               "sling.servlet.methods=" + HttpConstants.METHOD_GET,
+               "sling.servlet.paths=" + "/bin/poc/personalizedArticles"
+           })
+public class PersonalizedArticleServlet extends SlingAllMethodsServlet {
+
+    @Override
+    protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
+        Map<String, String> articles = new HashMap<>();
+        // Mocking personalized logic based on user preferences
+        articles.put("Sports", "Latest Football Updates");
+        articles.put("Technology", "Top Gadgets of 2024");
+        articles.put("Health", "10 Tips for Healthy Living");
+
+        response.setContentType("application/json");
+        response.getWriter().write(new Gson().toJson(articles));
+    }
+}
+```
+
+---------------------------------------------------------------
+
+### **3. Frontend Implementation**
+
+#### **A. HTL Template for Article List**:
+```html
+<div class="article-list">
+    <h2>Articles</h2>
+    <ul>
+        <li data-sly-repeat.article="${model.articles}">
+            <h3>${article.title}</h3>
+            <p>${article.description}</p>
+            <span>Author: ${article.author}</span>
+            <span>Date: ${article.publicationDate}</span>
+            <span>Status: ${article.status}</span>
+        </li>
+    </ul>
+</div>
+```
+
+#### **B. HTL Template for Article Detail**:
+```html
+<div class="article-detail">
+    <h1>${model.title}</h1>
+    <p>${model.description}</p>
+    <span>Written by: ${model.author} on ${model.publicationDate}</span>
+</div>
+```
+
+#### **C. Analytics Dashboard (Mock)**:
+```html
+<div class="analytics-dashboard">
+    <h2>Analytics</h2>
+    <p>Most Viewed: Sports Articles</p>
+    <p>Highest Readership: Technology</p>
+    <p>Last Week Stats: 5000 Visitors</p>
+</div>
+```
+
+---------------------------------------------------------------
+
+### **4. Workflow Configuration**
+
+#### **AEM Workflow Steps**:
+1. User Submits Article Changes.
+2. Admin Review Step:
+   - Approve: Publish the article.
+   - Reject: Notify the author.
+
+#### **Custom Workflow Implementation**:
+- Create a new workflow model in AEM Workflow Editor.
+- Add "Participant Step" for Admin approval.
+- Configure notifications to alert authors on approval/rejection.
+
+---------------------------------------------------------------
+
+### **5. Testing**
+
+#### **Steps to Test**:
+1. Add sample articles under `/content/poc/articles`.
+2. Access the article list component and verify data retrieval.
+3. Simulate a user with specific preferences (e.g., sports) and test personalized article delivery.
+4. Test the workflow by editing an article and submitting it for approval.
+5. Validate analytics mock display.
+
+------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+AEM maven project 
+------------------------------------------------------------------------------------------------------------------------------
+
+Why maven archetype in AEM?
+	->maven template that creates a minimal, best practices based AEM project as a starting point for website.
+
+
+projec types->
+	AEMaaCS - Cloud 
+		-> Standard/Web
+		-> SPA
+			-> React
+			-> Angular
+	AEM - AMS/Standalone 
+		-> Standard/Web
+		-> SPA
+			-> React
+			-> Angular
+
+Possble issues:
+	Open CMS as administrator - Windows OS (might get error)
+	settings.xml in .m2 directory with adobe-public profile.
+	check if firewall is blocking dependency download request.
+
+=========== Maven script to create Project ============
+Check MVN version in cmd: mvn --version
+
+mvn archetype:generate ^
+ -DarchetypeGroupId=com.adobe.granite.archetypes ^
+ -DarchetypeArtifactId=aem-project-archetype ^
+ -DarchetypeVersion=38 ^
+ -DgroupId=com.example ^
+ -DartifactId=my-aem-project ^
+ -Dversion=1.0.0-SNAPSHOT ^
+ -Dpackage=com.example.project ^
+ -DappsFolderName=myapp ^
+ -DartifactName="My AEM Project" ^
+ -DcomponentGroupName="MyApp Components" ^
+ -DconfFolderName=myapp ^
+ -DcontentFolderName=myapp ^
+ -DslashAppsFolderName=/apps/myapp ^
+ -DslashConfFolderName=/conf/myapp ^
+ -DslashContentFolderName=/content/myapp
+
+
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate 
+ -D archetypeGroupId=com.adobe.aem 
+ -D archetypeArtifactId=aem-project-archetype 
+ -D archetypeVersion=40 
+ -D appTitle="Geeks Demo" 
+ -D appId="geeksdemo" 
+ -D groupId="com.geeks.demo" 
+ -D aemVersion=6.5.5 
+ -D singleCountry=n
+
+
+31-12-2024 AEM Authors and Publisher #1 AEM CRXDE
+03-01-2025 AEM Authors and Publisher #2 AEM Assets
+06-01-2025 AEM Authors and Publisher #3 AEM Servers
+
+=====================================
+07-01-2025 
+=====================================
+Breadcrumb Component
+The Core Component Breadcrumb Component is a navigation component that builds a breadcrumb of links based on the page’s location in the content hierarchy.
+
+Usage
+The Breadcrumb Component displays the position of the current page within the site hierarchy, allowing page visitors to navigate the page hierarchy from their current location. 
+This is often integrated into page headers or footers.
+
+Available options, such as the default navigation level and the ability to show the current page or hidden pages, can be defined by the template author in the design dialog. 
+The content editor can then choose if hidden pages should be shown or not and the actual navigation level for the component in the edit dialog.
+
+Note: BreadCrumb and Title components are siblings.
+
+
+=====================================
+08/01/2025
+=====================================
+
+
+
+
+
+
+
+
+
+

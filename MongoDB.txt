@@ -1,0 +1,400 @@
+
+Download MongoDB and Monfo shell
+extract mongo shell inside MongoDB program files folder.
+Add enviroment variable of bin path of Mongo shell / bin
+
+=====================================================================
+Important Notes
+=====================================================================
+Import .csv file in collections.
+
+=====================================================================
+Important Queries
+=====================================================================
+use mydb
+show collections
+db.dropDatabase()  // will delete all collectons in database
+db.products.drop() // will delete only products collection.
+
+db.createCollection("notification")
+
+db.collection.updateOne(
+    <filter>,
+    <update>,
+   {
+     upsert: <boolean>,
+     writeConcern: <document>,
+     collation: <document>,
+     arrayFilters: [ <filterdocument1>, <filterdocument2>... ],
+     hint: <document|string>        
+   }
+)
+
+Parameters: 
+
+
+filter: First parameter of this method. It specifies the selection criteria for the update. The type of this parameter is document. If it contains empty document, i.e, {}, then this method will update the first document of the collection with the update document.
+
+
+update: Second parameter of this method. The type of this parameter is document or pipeline and it contains modification that will apply to the document. It can be a update Document(only contain update operator expressions) or aggregation pipeline(only contain aggregation stages, i.e, $addFields, $project, $replaceRoot ).
+
+
+Example:
+db.employee.update({}, { $set: {department: "HR"}})
+
+=-====================== Update Multiple document =====================================
+
+
+Syntax:  
+
+
+db.collection.updateMany(
+    <filter>,
+    <update>,
+   {
+     upsert: <boolean>,
+     writeConcern: <document>,
+     collation: <document>,
+     arrayFilters: [ <filterdocument1>, <filterdocument2>... ],
+     hint: <document|string>        
+   }
+)
+
+Parameters: 
+
+
+filter: First parameter of this method. It specifies the selection criteria for the update. The type of this parameter is document. If it contains empty document, i.e, {}, then this method will update all the documents of the collection with the update document.
+
+update: Second parameter of this method. The type of this parameter is document or pipeline and it contains modification that will apply to the documents. It can be a update Document(only contain update operator expressions) or aggregation pipeline(only contain aggregation stages, i.e, $addFields, $project, $replaceRoot).
+
+Example:
+
+db.employee.updateMany({}, {$set: {salary: 50000}}) 
+
+
+============ Check Existence =======================
+
+How to Check Field Existence in MongoDB?
+To check field existence in MongoDB, we can use the $exists operator. This operator allows us to query documents based on whether a particular field exists or does not exist. We will use the MongoDB $exists Operator with the examples along with the explanation and output defined below:
+
+MongoDB $exists
+The MongoDB $exists operator in MongoDB is used to query documents where a particular field exists or does not exist.
+This operator can take a boolean value (true or false)
+
+Example :
+
+db.students.find({ grade: { $exists: true, $ne: null } })
+
+
+=============== Sorting ===========================
+
+Example 1: Return all the documents in ascending order of the age
+db.student.find().sort({age:1})
+
+Example 2: Return all the documents in descending order of the age
+db.student.find().sort({age:-1})
+
+## Sort documents in ascending order according to the total field of the marks document:
+db.student.find().pretty().sort({"marks.total":1})
+
+## Sort documents in descending order according to the total field of the marks document:
+db.student.find().pretty().sort({"marks.total":-1})
+
+## Sorting multiple fields in document
+we sort the documents of the teacher collection in ascending order. Here, we sort multiple fields together using the sort() method(i.e., subject, age)
+db.teacher.find().pretty().sort({subject:1, age:1})
+
+## Sorting and displaying using limit 
+we sort the documents of the teacher collection in ascending order using the sort() method but in the result, we will only display 4 documents.
+db.teacher.find().pretty().sort({name:1}).limit(4)
+
+## Sorting the Metadata
+db.metaexample.find({$text:{$search:"MongoDB"}}, 
+                    {score:{$meta: "textScore"}}
+                   ).sort({score:{$meta:"textScore"}})
+
+
+
+==========
+07/01/2025
+==========
+$lookup:  Join two collections in MongoDB
+
+-> is an aggregation pipeline stage that allows you to perform a left outer jon between two collections.
+-> aggreagte : used to wriiten list comma separated stages.
+db.collection.aggregate ([
+	{
+		$lookup: {
+			from: "foreignCollection",
+			localField: "localField",
+			foreignField: "foreignField",
+			as: "outputArray"
+		}
+	}
+]);
+
+Example:
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "customers",         // The target collection to join with ( kis se join karna hey )
+      localField: "CustomerID",  // The field in the orders collection ( Primary key )
+      foreignField: "CustomerID",// The field in the customers collection ( foreign key )
+      as: "customerDetails"      // The name of the output array ( new field name )
+    }
+  },
+  {
+    $unwind: "$customerDetails" // Optionally, unwind the array to flatten the data
+  }
+]);
+
+=====================================================================
+embedded documents (documents inside another documents )
+=====================================================================
+
+Note-> Size of documents must be <= 16 MB.
+
+Example:
+Embedding document into another documents:
+db.employees.updateOne(
+  { _id: ObjectId('677cae84aca02e9943f00eef') }, // John's _id
+  {
+    $set: {
+      subordinate: {
+        _id: ObjectId('677cae84aca02e9943f00ef0'), // Jane's _id
+        FirstName: "Jane",
+        LastName: "Smith",
+        Email: "jane.smith@example.com",
+        PhoneNumber: 9876543211,
+        Department: "HR",
+        Position: "HR Manager",
+        Salary: 75000,
+        JoiningDate: ISODate("2018-03-22T00:00:00.000Z"),
+        ManagerID: 202
+      }
+    }
+  }
+);
+
+Output:
+ {
+    _id: ObjectId('677cae84aca02e9943f00eef'),
+    EmployeeID: 101,
+    FirstName: 'John',
+    LastName: 'Doe',
+    Email: 'john.doe@example.com',
+    PhoneNumber: Long('9876543210'),
+    Department: 'IT',
+    Position: 'Software Engineer',
+    Salary: 60000,
+    JoiningDate: ISODate('2020-01-15T00:00:00.000Z'),
+    ManagerID: 201,
+    subordinate: {
+      _id: ObjectId('677cae84aca02e9943f00ef0'),
+      FirstName: 'Jane',
+      LastName: 'Smith',
+      Email: 'jane.smith@example.com',
+      PhoneNumber: 9876543211,
+      Department: 'HR',
+      Position: 'HR Manager',
+      Salary: 75000,
+      JoiningDate: ISODate('2018-03-22T00:00:00.000Z'),
+      ManagerID: 202
+    }
+ }
+
+=====================================================================
+Projection in MonogoDB
+=====================================================================
+
+...   {
+...     Salary: { $gt: 30000 },
+...     Department: "HR"
+...   },
+...   {
+...     FirstName: 1,
+...     LastName: 1,
+...     _id: 0
+...   }
+... );
+[
+  { FirstName: 'Jane', LastName: 'Smith' },
+  { FirstName: 'Anna', LastName: 'Taylor' }
+]
+=====================================================================
+Is MongoDB really schemaless?
+=====================================================================
+MongoDB allows documents in a collection to have varying fields, structures, and data types.
+You don't need to predefine a strict schema like in relational databases (e.g., tables with predefined columns and data types).
+This flexibility enables developers to store unstructured or semi-structured data and adapt to changing requirements without schema migrations.
+
+=====================================================================
+MongoDB Datatypes
+=====================================================================
+Example:
+sample> db.companyData.insertOne({name:"Anazom", isFunded:true, funding:4567899987, employees:[ {name:"vipul", age:55},{name:"amit", age:78}], foundedOn: new Date(), foundedOnTimestamp: new Timestamp() })
+{
+  acknowledged: true,
+  insertedId: ObjectId('677cc3634224ef3dfbcb0ce2')
+}
+sample>
+
+sample> db.companyData.find()
+[
+  {
+    _id: ObjectId('677cc3634224ef3dfbcb0ce2'),
+    name: 'Anazom',
+    isFunded: true,
+    funding: 4567899987,
+    employees: [ { name: 'vipul', age: 55 }, { name: 'amit', age: 78 } ],
+    foundedOn: ISODate('2025-01-07T06:02:11.036Z'),
+    foundedOnTimestamp: Timestamp({ t: 1736229731, i: 1 })
+  }
+]
+
+=====================================================================
+Schema Validations
+=====================================================================
+-> Open VScode editor.
+
+Example:
+db.createCollection("nonfiction",{
+    validator:{
+        $jsonSchema:{
+            required:['name','price'],
+            properties:{
+            name:{
+                bsonType: 'string',
+                description: 'must be a string and required'
+            },
+            price:{
+                bsonType: 'number',
+                description: 'must be a number and required'
+            }
+                
+            }
+        }
+    },
+    validationAction: 'error'
+})
+
+db.nonfiction.insert({name:"way of men", price:300.30})
+
+
+=====================================================================
+Write Concern
+=====================================================================
+Write concern describes the level of acknowledgment requested from MongoDB for write operations to a standalone mongod, replica sets, or sharded clusters. 
+In sharded clusters, mongos instances will pass the write concern on to the shards.
+
+Write concern can include the following fields:
+
+{ w: <value>, j: <boolean>, wtimeout: <number> }
+
+Example:
+sample> db.books.insertOne({name:"C" , price:3}, {writeConcern:{w:0}})
+{
+  acknowledged: false,
+  insertedId: ObjectId('677dece11c90402155cb0ce4')
+}
+
+=====================================================================
+Atomicity in MongoDB
+=====================================================================
+Atomicity in MongoDB ensures that all changes within a single operation are either fully completed or not applied at all. 
+This prevents data corruption and inconsistencies.
+Atomicity will achieve at Document level.
+
+
+=====================================================================
+MongoImport in MonogDB 
+=====================================================================
+Download MongoDB command line database tools from "https://www.mongodb.com/try/download/database-tools" -> Select msi 
+Add bin path inside environment variable
+-> download student.json "http://u.pc.cd/SsHotalK"
+-> Run command " mongoimport "C:\Users\shubham_walunj\Desktop\MongoDB\students.json" -d college -c students --jsonArray --drop   "
+
+=====================================================================
+Comparision Operator
+=====================================================================
+-> db.students.find({age:11})
+-> db.students.find({age:{$eq:11}})
+-> db.students.find({age:{$ne:11}})
+-> db.students.find({age:{$gt:11}})
+-> db.students.find({age:{$gte:11}})
+-> db.students.find({age:{$lte:11}})
+-> db.students.find({age:{$in: [11,12,22]}})
+-> db.students.find({age:{$nin: [11,12,22]}})
+-> db.students.find({Hobbies:'Walk'})
+-> db.students.find({'identity.hasAdhaarCard':true})
+
+=====================================================================
+Logical Operator
+=====================================================================
+-> db.students.find( {$or: [ {age: {$lte:10}} , {age: {$gte:12}} ]})
+-> db.students.find( {$nor: [ {age: {$lte:10}} , {age: {$gte:12}} ]})
+-> db.students.find( {$and: [ {age: {$lte:10}} , {Hobbies: 'Walk'} ]})
+-> db.students.find( {$and: [ {age: {$not: {$lt:11}}} , {Hobbies: 'Walk'} ]})
+
+=====================================================================
+Querying Operator
+=====================================================================
+-> db.students.find({ hasMacBook: { $exists:true } })
+-> db.students.find({ hasMacBook: { $exists:true, $type:8} })
+
+=====================================================================
+Evaluation Query Operator
+=====================================================================
+$expr
+Allows use of aggregation expressions within the query language.
+-> 
+
+$jsonSchema
+Validate documents against the given JSON Schema.
+->
+
+$mod
+Performs a modulo operation on the value of a field and selects documents with a specified result.
+->
+
+$regex
+Selects documents where values match a specified regular expression.
+->
+
+$where
+Matches documents that satisfy a JavaScript expression.
+->
+
+Example: db.students.find({ $text:{ $search:"youtube"} })
+
+=====================================================================
+Array Queries
+=====================================================================
+
+Q. Students worked at amazon
+-> db.students.find({ "experience.company" : "Amazon" } )
+
+Q. How many students worked in spotify?
+-> db.students.find( { experience: { $size : 3} } )
+			OR
+-> db.students.find({ $and:  [{ experience: { $exists: true }}, { $expr: { $gte: [ { $size:"$experience"}, 3 ] } }] } )
+
+Q. how many students whose hobbies are walking and reading?
+-> db.students.find({ Hobbies: ["Walking", "Reading"] })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
