@@ -383,6 +383,529 @@ Q. how many students whose hobbies are walking and reading?
 -> db.students.find({ Hobbies: ["Walking", "Reading"] })
 
 
+=====================================================================
+Sorting MongoDB Documents
+=====================================================================
+
+-> db.teachers.find().sort( { age : 1 } )
+-> db.teachers.find().sort( { age : 1 , name: 1} )
+-> db.teachers.find().sort( { age : 1 , name: 1} ).forEach(x => printjson(x))
+-> db.teachers.find().sort( { age : 1 , name: 1} ).skip(15)
+[
+  { _id: 13, name: 'Mike', age: 36, gender: 'male' },
+  { _id: 5, name: 'David', age: 40, gender: 'male' },
+  { _id: 17, name: 'Jason', age: 41, gender: 'male' },
+  { _id: 7, name: 'Chris', age: 45, gender: 'male' },
+  { _id: 16, name: 'Mark', age: 46, gender: 'male' }
+]
+
+=====================================================================
+Advanced updates query
+=====================================================================
+-> use college
+-> db.students.updateMany({}, { $inc: { age: 2 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 8,
+  modifiedCount: 8,
+  upsertedCount: 0
+}
+
+Q. Increase age of Sita to 50 only if her age is lesser that it.
+
+age of Sit is 25.
+-> db.students.updateMany({ name : "Sita"}, { $max: { age : 50 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+age is 50.
+-> db.students.updateMany({ name : "Sita"}, { $max: { age : 23 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 0, // not modified
+  upsertedCount: 0
+}
+
+db.students.updateMany({ name : "Sita"}, { $min: { age : 23 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1, // modified to 23.
+  upsertedCount: 0
+}
+
+db.students.updateMany({ name : "Sita"}, { $mul: { age : 2 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+-> db.students.updateMany({ name : "Sita"}, { $unset: { age : 2324 } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+-> db.students.updateMany({}, { $rename : { age : "studentAge" } })
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 8,
+  modifiedCount: 7,
+  upsertedCount: 0
+}
+
+-> db.students.updateOne({name: "Golu"}, {$set:{ age:100} }, {upsert: true})
+{
+  acknowledged: true,
+  insertedId: ObjectId('677f5dcbd79a79f46a0ac680'),
+  matchedCount: 0,
+  modifiedCount: 0,
+  upsertedCount: 1
+}
+
+Q. For all experiences lesser than and equal to 1 year for all students. 
+
+->  db.students.updateMany({ experience: { $elemMatch: {duration: { $lte:1 } } } }, { $set: {"experience.$.neglect": true} } )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 5,
+  modifiedCount: 5,
+  upsertedCount: 0
+} 
+
+-> db.students.find({ experience: {$elemMatch: {duration: { $lte:1 } } } } )
+[
+  {
+    _id: ObjectId('677df0915bb5f2e2c176c65b'),
+    name: 'Geeta',
+    bio: 'I just code.',
+    experience: [
+      { company: 'Amazon', duration: 2 },
+      { company: 'Flipkart', duration: 1, neglect: true }
+    ],
+    Hobbies: [ 'Reading', 'Walking' ],
+    age: 2
+  },.....
+-
+
+=====================================================================
+MonogoDB Indexing
+=====================================================================
+
+Indexes are stored in B-Tree data structure.
+
+The trade-off -> less storage space and write performance.
+
+Types of Indexes :
+
+1) Single field Indexes->
+
+Queries:
+========
+college> db.Teachers.find( { age : { $lte:30 } }).explain("executionStats")
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'college.Teachers',
+    parsedQuery: { age: { '$lte': 30 } },
+    indexFilterSet: false,
+    queryHash: '3AD90A0B',
+    planCacheKey: 'F77A3B77',
+    optimizationTimeMillis: 0,
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    prunedSimilarIndexes: false,
+    winningPlan: {
+      isCached: false,
+      stage: 'COLLSCAN',
+      filter: { age: { '$lte': 30 } },
+      direction: 'forward'
+    },
+    rejectedPlans: []
+  },....
+
+college> db.Teachers.getIndexes()
+  { v: 2, key: { _id: 1 }, name: '_id_' },
+  { v: 2, key: { age: 1 }, name: 'age_1' }
+]
+
+college> db.Teachers.dropIndex("age_1")
+{ nIndexesWas: 2, ok: 1 }
+
+When not to use Indexing in MongoDB?
+====================================
+-< when the collection is small.
+-> When the collection is frequently updated.
+-> When the queris are complex (multiple fields)
+-> When the collection is large (make less indices)
+
+2) Compound Indexes->
+
+Queries:
+========
+college> db.Teachers.createIndex({age:1, gender:1})
+age_1_gender_1
+college> db.Teachers.find( { age : { $gte:27}, gender:"male"}).explain("executionStats")
+{
+  explainVersion: '1',
+  queryPlanner: {
+    namespace: 'college.Teachers',
+    parsedQuery: {
+      '$and': [ { gender: { '$eq': 'male' } }, { age: { '$gte': 27 } } ]
+    },
+    indexFilterSet: false,
+    queryHash: 'AC5BF83A',
+    planCacheKey: '3D9CBF30',
+    optimizationTimeMillis: 0,
+    maxIndexedOrSolutionsReached: false,
+    maxIndexedAndSolutionsReached: false,
+    maxScansToExplodeReached: false,
+    prunedSimilarIndexes: false,
+    winningPlan: {
+      isCached: false,
+      stage: 'FETCH',
+      inputStage: {
+        stage: 'IXSCAN',
+        keyPattern: { age: 1, gender: 1 },
+        indexName: 'age_1_gender_1',
+        isMultiKey: false,
+        multiKeyPaths: { age: [], gender: [] },
+        isUnique: false,
+        isSparse: false,
+        isPartial: false,
+        indexVersion: 2,
+        direction: 'forward',
+        indexBounds: { age: [ '[27, inf.0]' ], gender: [ '["male", "male"]' ] }
+      }
+    },
+    rejectedPlans: []
+  },...
+
+Note: 
+Indexing also helps in sorting
+eg. db.Teachers.createIndex({name:1}, {unique:true} )
+
+Partial filters->
+eg. db.Teachers.createIndex({name:1},{partialFilterExpression: { gender:{$exists: true}} } )
+
+TTL -> 
+Time-to-live (TTL) in MongoDB is a feature that automatically removes documents from a collection 
+after a specified amount of time or at a specific time.
+
+How it works
+A TTL index is a single-field index that specifies the number of seconds a document should be valid for. When a document's expiration threshold is reached, it is automatically removed from the collection. 
+When it's useful
+->TTL is useful for information that only needs to be stored in a database for a limited time, such as: 
+->Machine-generated event data 
+->Logs 
+->Session information 
+->Shopping carts 
+Eg. db.collection.createIndex( { "expires":1 }, { expireAfterSeconds: 3600 } )
+	Note: expires must be date. These works on date filed and on single field index.
+
+Covered Query ->
+	All the fields in the query are part of an index.
+	All the fields returned in the query are in the same.
+
+Note:
+     In case of Multiple Indexes,
+	MongoDB checks the performance of index on a sample of documents once the queries are run and set it as Winning plan
+	Then second query of similar type it doesnt race them again.
+	It stores that winning plan as cache.
+     Cache is reset agter
+	After 1000 writes
+	Index is reset
+	Mongo Server is restarted.
+	Other indexes are manipulated.
+
+3) Multi-key index:
+	multi-key index is an index that can be created on an array field.
+	mongodb will create a separate index entry for each value in each array.
+	so it can quickly look up documents that match a specific value.
+Eg. 
+college> db.students.find({}, {Hobbies:1, _id:0})
+[
+  { Hobbies: [ 'Anime' ] },
+  { Hobbies: [ 'Walking', 'Reading' ] },
+  { Hobbies: [ 'Reading', 'Walking' ] },
+  { Hobbies: [ 'Gaming', 'Cooking' ] },
+  { Hobbies: [ 'Walk', 'Cricket' ] },
+  { Hobbies: [ 'Walk', 'Cricket' ] },
+  {},
+  { Hobbies: [ 'Walk', 'Cricket' ] },
+  {}
+]
+
+Aggregation ->
+db.students.find({}, {bio:1,name:1, _id:0})
+[
+  { name: 'Rita', bio: 'I play games' },
+  { name: 'Shyam', bio: 'I am a youtuber and actor' },
+  { name: 'Geeta', bio: 'I just code.' },
+  { name: 'Geeta', bio: 'I code and play games.' },
+  { name: 'Ram', bio: 'I do nothing.' },
+  { name: 'Sita', bio: 'I am a youtuber' },
+  { name: 'Akshit', bio: 'I am savage boi.' },
+  { name: 'Ghanshayam', bio: 'I am a cook' },
+  { name: 'Golu' }
+]
+
+3) Text index->
+
+Before->
+college> db.students.find({bio:"I am a youtuber"})
+[
+  {
+    _id: ObjectId('677df0915bb5f2e2c176c65e'),
+    name: 'Sita',
+    Hobbies: [ 'Walk', 'Cricket' ],
+    identity: { hasPanCard: false, hasAdhaarCard: true },
+    bio: 'I am a youtuber',
+    experience: [
+      { company: 'Spotify', duration: 3 },
+      { company: 'Paytm', duration: 1, neglect: true }
+    ]
+  }
+]
+But  i am getting only seeta but i want shyam as well.
+So, we use Text Index.
+
+After->
+1) Single Text Index per collection
+2) Tokenization and Stemming
+3) Relevance score
+
+Eg. 
+college> db.students.createIndex({name:"text", bio:"text"},{weights:{ name:10000, bio:1} })
+name_text_bio_text
+
+## Note sorted
+college> db.students.find({ $text: { $search:" actor sita" }}, {hamaraScore:{ $meta:"textScore"}})
+[
+  {
+    _id: ObjectId('677df0915bb5f2e2c176c65a'),
+    name: 'Shyam',
+    Hobbies: [ 'Walking', 'Reading' ],
+    identity: { hasPanCard: false, hasAdhaarCard: true },
+    bio: 'I am a youtuber and actor',
+    age: 13,
+college>
+  },
+  {
+    _id: ObjectId('677df0915bb5f2e2c176c65e'),
+    name: 'Sita',
+    Hobbies: [ 'Walk', 'Cricket' ],
+    identity: { hasPanCard: false, hasAdhaarCard: true },
+    bio: 'I am a youtuber',
+    experience: [
+      { company: 'Spotify', duration: 3 },
+      { company: 'Paytm', duration: 1, neglect: true }
+    ],
+    hamaraScore: 11000
+  }
+]
+
+## sorted
+college> db.students.find({ $text: { $search:" actor sita" }}, {hamaraScore:{ $meta:"textScore"}}).sort ({ hamaraScore:{ $meta:"textScore"}})
+[
+  {
+    _id: ObjectId('677df0915bb5f2e2c176c65e'),
+    name: 'Sita',
+    Hobbies: [ 'Walk', 'Cricket' ],
+    identity: { hasPanCard: false, hasAdhaarCard: true },
+    bio: 'I am a youtuber',
+    experience: [
+      { company: 'Spotify', duration: 3 },
+      { company: 'Paytm', duration: 1, neglect: true }
+    ],
+    hamaraScore: 11000
+  },
+  {
+    _id: ObjectId('677df0915bb5f2e2c176c65a'),
+    name: 'Shyam',
+    Hobbies: [ 'Walking', 'Reading' ],
+    identity: { hasPanCard: false, hasAdhaarCard: true },
+    bio: 'I am a youtuber and actor',
+    age: 13,
+    hamaraScore: 0.75
+  }
+]
+
+Note : Bydeafult background false hota hey, means woh query foreground mein run hogi and index block hoga.
+	
+So,
+college> db.students.createIndex({name:"text",bio:"text"}, {background : true })
+name_text_bio_text
+college> db.students.getIndexes()
+[
+  { v: 2, key: { _id: 1 }, name: '_id_' },
+  {
+    v: 2,
+    key: { _fts: 'text', _ftsx: 1 },
+    name: 'name_text_bio_text',
+    background: true,
+    weights: { bio: 1, name: 1 },
+    default_language: 'english',
+    language_override: 'language',
+    textIndexVersion: 3
+  }
+]
+
+
+=====================================================================
+MonogoDB Aggregation
+=====================================================================
+
+The aggregation process in MongoDB consists of several stages, each stage transforming data in some way.
+The output of one stage is fed as the input to the next stage, and so on until the final stage products the desired result.
+MongoDB provides several built-in aggregation pipeline stages to perform various operations on the data such as $group, $sum, $avg, $min, $max.
+
+Queries:
+college> db.Teachers.aggregate( [ { $group:{_id:"$age"} } ])
+[
+  { _id: 25 }, { _id: 26 },
+  { _id: 27 }, { _id: 28 },
+  { _id: 29 }, { _id: 30 },
+  { _id: 31 }, { _id: 32 },
+  { _id: 33 }, { _id: 34 },
+  { _id: 35 }, { _id: 36 },
+  { _id: 40 }, { _id: 41 },
+  { _id: 45 }, { _id: 46 }
+]
+
+college> db.Teachers.aggregate( [ { $group:{_id:"$age", names: { $push:"$name"} } } ])
+[
+  { _id: 25, names: [ 'Jane' ] },
+  { _id: 28, names: [ 'Emily', 'Megan' ] },
+  { _id: 27, names: [ 'Ashley' ] },
+  { _id: 46, names: [ 'Mark' ] },
+  { _id: 32, names: [ 'Samantha' ] },
+  { _id: 34, names: [ 'Lauren' ] },
+  { _id: 40, names: [ 'David' ] },
+  { _id: 36, names: [ 'Mike' ] },
+  { _id: 45, names: [ 'Chris' ] },
+  { _id: 31, names: [ 'Robert' ] },
+  { _id: 30, names: [ 'John', 'Scott' ] },
+  { _id: 41, names: [ 'Jason' ] },
+  { _id: 33, names: [ 'Jessica', 'Sarah' ] },
+  { _id: 35, names: [ 'Michael' ] },
+  { _id: 26, names: [ 'Alicia' ] },
+  { _id: 29, names: [ 'James', 'Katie' ] }
+]
+
+college> db.Teachers.aggregate( [ { $group:{ _id:"$age", pooraDoc:{ $push:"$$ROOT" }}} ] )
+[
+  {
+    _id: 36,
+    pooraDoc: [ { _id: 13, name: 'Mike', age: 36, gender: 'male' } ]
+  },
+  {
+    _id: 30,
+    pooraDoc: [
+      { _id: 1, name: 'John', age: 30, gender: 'male' },
+      { _id: 19, name: 'Scott', age: 30, gender: 'male' }
+    ]
+  },.......
+
+Give a count per age of male teacher.
+college> db.Teachers.aggregate([{$match:{gender:"male"}}, {$group:{_id:"$age", countOfteacherInThisAgeGroup:{$sum:1}}}  ]).pretty()
+[
+  { _id: 29, countOfteacherInThisAgeGroup: 1 },
+  { _id: 46, countOfteacherInThisAgeGroup: 1 },
+  { _id: 41, countOfteacherInThisAgeGroup: 1 },
+  { _id: 40, countOfteacherInThisAgeGroup: 1 },
+  { _id: 35, countOfteacherInThisAgeGroup: 1 },
+  { _id: 36, countOfteacherInThisAgeGroup: 1 },
+  { _id: 31, countOfteacherInThisAgeGroup: 1 },
+  { _id: 45, countOfteacherInThisAgeGroup: 1 },
+  { _id: 30, countOfteacherInThisAgeGroup: 2 }
+]
+
+Give a copunt per age of, male students and sort them by count in desc manner.
+college> db.Teachers.aggregate([{$match:{gender:"male"}}, {$group:{_id:"$age", countOfteacherInThisAgeGroup:{$sum:1}}}, {$sort:{ countOfTeacherInThisAgeGroup:-1 } } ])
+[
+  { _id: 29, countOfteacherInThisAgeGroup: 1 },
+  { _id: 30, countOfteacherInThisAgeGroup: 2 },
+  { _id: 46, countOfteacherInThisAgeGroup: 1 },
+  { _id: 41, countOfteacherInThisAgeGroup: 1 },
+  { _id: 40, countOfteacherInThisAgeGroup: 1 },
+  { _id: 35, countOfteacherInThisAgeGroup: 1 },
+  { _id: 36, countOfteacherInThisAgeGroup: 1 },
+  { _id: 45, countOfteacherInThisAgeGroup: 1 },
+  { _id: 31, countOfteacherInThisAgeGroup: 1 }
+]
+
+Note -> We can create pipeline as much as we can.
+Hobbies per age group
+college> db.students.aggregate([ {$group:{ _id:"$age", hobbies:{ $push:"$Hobbies" } } } ])
+[
+  { _id: 14, hobbies: [ [ 'Gaming', 'Cooking' ] ] },
+  {
+    _id: 13,
+    hobbies: [ [ 'Anime' ], [ 'Walking', 'Reading' ], [ 'Walk', 'Cricket' ] ]
+  },
+  { _id: null, hobbies: [ [ 'Walk', 'Cricket' ] ] },
+  { _id: 2, hobbies: [ [ 'Reading', 'Walking' ] ] },
+  { _id: 24, hobbies: [] },
+  { _id: 12, hobbies: [ [ 'Walk', 'Cricket' ] ] },
+  { _id: 100, hobbies: [] }
+]
+
+Find total no of hobbies for all students in a collection.
+college> db.students.aggregate ( [ {$unwind:"$Hobbies"}, {$group:{_id:null, count:{$sum:1}}} ] )
+[ { _id: null, count: 13 } ]
+
+Find age of students whose age is grater than 20
+college> db.students.aggregate ([{ $group: { _id: null, avgScore: { $avg: { $filter: {input: "$scores", as: "score", cond: {$gt: ["age", 20]}}}}}} ])
+
+=====================================================================
+Capped Collection
+=====================================================================
+Capped collections are fixed-size collections that insert and retrieve documents based on insertion order.
+
+Whenever u create a new document oldest on deleted.
+
+Eg. 
+log> db.createCollection("order_logs", { capped:true, max:3,  size:100000})
+{ ok: 1 }
+
+If u try to add 1 more document inside it. it will be capped means replace oldest one.
+
+=====================================================================
+Authentication and Authorisation
+=====================================================================
+Enabling authentication in MongoDB involves making configuration changes.
+C:\Program Files\MongoDB\Server\<version>\bin\mongod.cfg
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
