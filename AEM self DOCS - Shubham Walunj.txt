@@ -695,6 +695,56 @@ Note: BreadCrumb and Title components are siblings.
 
 
 
+=====================================
+13/01/2025
+=====================================
+Content tree ->
+In Adobe Experience Manager (AEM), the Content Tree is a hierarchical representation of content stored in the repository. It organizes content, assets, and configurations in a structured manner. The structure follows the JCR (Java Content Repository) standard, where content is stored as nodes and properties.
+Inside Toggle pannel tree -> cotent tree -> get element added inside page.
+
+
+CRXDE -> Go to /apps/core/wcm/components/title/v2/title/title.html -> Replication -> Replicate -> isActivated
+Can promote changes from author instance to publisher instance. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
