@@ -1,4 +1,7 @@
 AEM training
+
+To know the no. of pages website has
+Website Crawler
 ==========
 16/12/2024
 ==========
@@ -709,6 +712,9 @@ Can promote changes from author instance to publisher instance.
 
 
 
+=====================================
+14/01/2025
+=====================================
 
 
 
@@ -719,7 +725,16 @@ Can promote changes from author instance to publisher instance.
 
 
 
+=====================================
+15/01/2025
+=====================================
 
+Run Mode -> Author/Publisher
+
+Why CMS?
+Content Management System
+Less programming
+Content Authors/ Developers
 
 
 

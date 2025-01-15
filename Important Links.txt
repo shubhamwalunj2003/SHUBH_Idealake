@@ -1,0 +1,3 @@
+https://github.com/akullpp/awesome-java?tab=readme-ov-file
+
+https://github.com/TheAlgorithms/Java/blob/master/src/main/java/com/thealgorithms/datastructures/stacks/README.md
