@@ -737,6 +737,34 @@ Less programming
 Content Authors/ Developers
 
 
+=====================================
+17/01/2025
+=====================================
+shubham ->
+	->components
+		->content
+		->structure
+Inside /structure create a component
+Label:homepage
+Title:Home page Component
+Description:
+Super Type:
+wcm/foundation/components/page
+Group:.hidden
+
+	->templates 	
+Note: Create a template indide /templates
+Label:homepage
+Title:Home Page for Training
+Description:This template will be used to create homepage for Training project.
+Resource Type:training/components/strucutre/homepage
+Ranking:1
+
+Allowed Paths: /content (first page when u open site)
+ 
+ 
+ 
+
 
 
 
