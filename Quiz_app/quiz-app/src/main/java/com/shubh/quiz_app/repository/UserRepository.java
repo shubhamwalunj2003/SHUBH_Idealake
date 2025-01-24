@@ -6,6 +6,8 @@ import com.shubh.quiz_app.entities.User;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
+import java.util.Optional;
+
 import com.shubh.quiz_app.enums.UserRole;
 
 
@@ -15,7 +17,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByRole(UserRole role);
 
     User findFirstByEmail(String email);
+
+    Optional<User> findByEmail(String email);
 }
 
+ 
 
 
