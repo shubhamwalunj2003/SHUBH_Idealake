@@ -14,7 +14,6 @@ import com.timescape.authentication_service.ldap.CustomUserDetailsService;
 import com.timescape.authentication_service.util.JwtUtil;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.io.IOException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,16 +21,22 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
- 
- private static Logger log=LogManager.getLogger(JwtRequestFilter.class);
- 
- @Autowired
- private CustomUserDetailsService customUserDetailsService;
- 
- @Autowired
- private JwtUtil jwtUtil;
 
- @Override
+    private static Logger log = LogManager.getLogger(JwtRequestFilter.class);
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.equals("/api/auth/generatetoken") || path.equals("/api/auth/Hi");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, java.io.IOException {
         final String requestTokenHeader = request.getHeader("Authorization");
@@ -67,5 +72,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
-        chain.doFilter(request, response);}
+        chain.doFilter(request, response);
+    }
+
 }

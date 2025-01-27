@@ -29,44 +29,45 @@ import com.timescape.authentication_service.util.LDAPConstants;
 @RequestMapping("/api/auth")
 public class AuthController {
 
- private final Logger log = LogManager.getLogger(AuthController.class);
+    private final Logger log = LogManager.getLogger(AuthController.class);
 
     @Autowired
     AuthenticationManager authenticationManager;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
-    
+
     @Autowired
     private JwtUtil jwtUtil;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
- @PostMapping("/generatetoken")
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @PostMapping("/generatetoken")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) throws Exception {
 
-     authenticate(loginRequest.getUsername(), loginRequest.getPassword());
-     if(loginRequest.getUsername() == null ) {
-       return new ResponseEntity(new ApiResponse(false, LDAPConstants.USERNAME_OR_PASSWORD_INVALID),
-                     HttpStatus.BAD_REQUEST);
-     }
-     
-   UserDetails userDetails=customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
-   String jwt=jwtUtil.generateToken(userDetails);
+        authenticate(loginRequest.getUsername(), loginRequest.getPassword());
+        if (loginRequest.getUsername() == null) {
+            return new ResponseEntity(new ApiResponse(false, LDAPConstants.USERNAME_OR_PASSWORD_INVALID),
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginRequest.getUsername());
+        String jwt = jwtUtil.generateToken(userDetails);
         return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
     }
-    
+
     @GetMapping("/Hi")
-    public String Hello(){
-     return "Hello";
+    public String Hello() {
+        return "Hello";
     }
+
     private void authenticate(String username, String password) throws Exception {
-  try {
-   authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-  } catch (DisabledException e) {
-   throw new Exception("USER_DISABLED", e);
-  } catch (BadCredentialsException e) {
-   throw new Exception("INVALID_CREDENTIALS", e);
-  }
- }
-    
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
+    }
+
 }

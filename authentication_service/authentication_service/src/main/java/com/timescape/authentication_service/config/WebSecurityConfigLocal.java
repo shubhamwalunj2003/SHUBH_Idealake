@@ -59,8 +59,8 @@ public class WebSecurityConfigLocal {
     private JwtRequestFilter jwtRequestFilter;
 
     public WebSecurityConfigLocal(JwtRequestFilter jwtRequestFilter) {
-      this.jwtRequestFilter = jwtRequestFilter;
-  }
+        this.jwtRequestFilter = jwtRequestFilter;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -75,11 +75,11 @@ public class WebSecurityConfigLocal {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
-                .cors().configurationSource(corsConfigurationSource())
-                .and()
+                // .cors().configurationSource(corsConfigurationSource())
+                // .and()
                 .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/Hi","api/auth/generatetoken").permitAll() // Allow /Hi without authentication
                 .requestMatchers(
-                        new AntPathRequestMatcher("*/api/auth/*"),
                         new AntPathRequestMatcher("/**/*.svg"),
                         new AntPathRequestMatcher("/**/*.png"),
                         new AntPathRequestMatcher("/**/*.gif"),
