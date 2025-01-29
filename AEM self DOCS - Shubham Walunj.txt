@@ -10,6 +10,10 @@ Installation:
 	-> Run one by one not together otherwise system will crash
 	-> localhost default username and pwd is admin
 
+Run command to install author:
+java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=30303 -XX:MaxPermSize=256M -Xmx1024m -Dorg.apache.sling.commons.log.level=INFO -jar aem-author-p4502.jar -p 4502 -verbose -nofork
+ 
+
 CMS(Content Management System)->
 	-> provides most of the infrastructure
 	-> reusability
@@ -121,13 +125,121 @@ CRXDE
 	-> this IDE/console showyou how to stored content? what is stored? Where it is stored?
 
 	Project Directory structure:
-		apps-> project specific code will be here
-		bin-> 
-		conf->
-		content-> content is stored
-		home-> users and groups are here
-		libs-> code/functionality aem uses ,not write anything under libs
+	1. /content
+	The /content folder contains the actual website content. This is where authors and developers manage pages, assets, and structured content.
+	Key Features:
+		Represents the content hierarchy of the website.
+		Organized by sites or locales.
+		Typical Structure:
+		/content/<project-name>: Stores the main site content.
+		Example:
+			/content/my-site
+    				/en        (English version of the site)
+    				/fr        (French version of the site)
+    				/de        (German version of the site)
+		Content here is created using page templates and components defined in /apps.
+		Common Node Types:
+		cq:Page: Represents a webpage.
+		cq:PageContent: Contains the content and properties of a page.
 
+	2. /apps
+	The /apps folder is where custom application code resides. This is the main folder for developers to store custom components, templates, and configurations.
+	Key Features:
+		Stores reusable resources for the project.
+		Serves as the codebase for all development.
+	Typical Structure:
+		/apps/<project-name>:
+	components: Custom components (e.g., header, footer, carousel).
+	templates: Page templates for content creation.
+	configs: Project-specific configurations.
+	Best Practices:
+		Do not modify core AEM components directly; instead, extend them in /apps.
+		Follow proper naming conventions for components and templates.
+
+	3. /libs
+		The /libs folder contains AEM’s core functionality. It includes all built-in components, services, and configurations provided by Adobe.
+	Key Features:
+		Read-only folder (direct edits are discouraged).
+		Used as the foundation for custom applications in /apps.
+	Key Sections:
+		/libs/foundation: Legacy components like form fields, rich text editors, etc.
+		/libs/granite: Granite UI components for dialogs and UIs.
+		/libs/wcm: Web Content Management features and tools.
+	Best Practices:
+		Never directly modify files in /libs.
+		Overlay or extend components by copying them into /apps.
+
+	4. /etc
+	The /etc folder contains configuration data and custom project settings.
+	Key Features:
+		Stores templates, workflows, and metadata schemas.
+		Useful for project-level configurations.
+	Typical Structure:
+		/etc/designs: Styling and design assets.
+		Used to define project-specific design resources like CSS and JS.
+		/etc/workflow: Workflow models for custom business processes.
+		/etc/tags: Taxonomy and tagging definitions for organizing content.
+
+	5. /var
+	The /var folder contains runtime data, temporary content, and user-generated content.
+	Key Features:
+		Stores logs, statistics, and user preferences.
+		Includes generated content such as form submissions and workflows.
+	Typical Structure:
+		/var/audit: Audit logs.
+		/var/workflow: Runtime workflow instances.
+		/var/dam: Digital Asset Management (DAM)-specific data like renditions.
+
+	6. /oak:index
+		The /oak:index folder stores index definitions for querying the repository.
+	Key Features:
+		Used for optimizing queries and improving performance.
+		Contains Lucene-based and property-based index configurations.
+	Best Practices:
+		Modify only if necessary and understand how changes impact performance.
+		Use tools like the Query Debugger to analyze query performance before creating custom indexes.
+
+	7. /home
+	The /home folder contains user-specific data.
+	Key Features:
+		Stores user profiles and preferences.
+		Useful for managing individual user accounts in AEM.
+	Typical Structure:
+		/home/users: User data.
+		/home/groups: Group data.
+
+	8. /content/dam
+	A subfolder under /content specifically for digital assets (DAM: Digital Asset Manager).
+	Key Features:
+		Stores images, videos, PDFs, and other media files.
+		Supports metadata for assets.
+	Typical Structure:
+		/content/dam/<project-name>:
+	Assets: All uploaded media.
+	Renditions: Automatically generated thumbnails and resized versions.
+
+	9. /system
+	The /system folder contains internal services and configurations for AEM.
+
+	Key Features:
+		Used by AEM for system-level operations.
+		Not commonly interacted with by developers.
+
+	10. /tmp
+	The /tmp folder is used for temporary data.
+
+	Key Features:
+		Stores transient data used during development or runtime.
+		Often cleaned up automatically.
+	11. /bin
+		The /bin folder contains executable scripts and servlets.
+
+	Key Features:
+		Often used to expose custom REST endpoints or services.
+	Example:
+		/bin/querybuilder.json: Query Builder API.
+
+===========================================================
 How to deploy website from one instance to another instance?
 
 package manager
@@ -135,7 +247,7 @@ package manager
 	-> Create package, give package name, version. Click OK.
 	-> Edit -> filters -> content>we-retail -> SAVE -> BUILD -> Download
 	-> Upload package by selecting path.
-
+===========================================================
 AEM Sites
 	-> AEM built on JCR
 	-> AEM uses JCR(Java Content Repository) to save data.
@@ -618,7 +730,7 @@ public class PersonalizedArticleServlet extends SlingAllMethodsServlet {
 ------------------------------------------------------------------------------------------------------------------------------
 AEM maven project 
 ------------------------------------------------------------------------------------------------------------------------------
-
+=================================================================================================================
 Why maven archetype in AEM?
 	->maven template that creates a minimal, best practices based AEM project as a starting point for website.
 
@@ -640,37 +752,97 @@ Possble issues:
 	settings.xml in .m2 directory with adobe-public profile.
 	check if firewall is blocking dependency download request.
 
+AEM maven project structure:
+Pom sections:
+<project>
+	<modules>.......</modules>
+	<properties>........</properties>
+	<build>
+		<plugins>        </plugins>
+		<pluginManagement>                  </pluginManagement>
+	</build>
+	<profiles>   --Used to customize build behaviour--  </profiles>
+	<dependencyManagement>       </dependencyManagement>
+</project>
+
+Maven plugins
+	Plugings are used to create content package.
+	Deploy bundles in AEM.
+	Build plugins --> AEm archetype only adds build plugins.
+	Reporting plugins
+
+
 =========== Maven script to create Project ============
 Check MVN version in cmd: mvn --version
 
-mvn archetype:generate ^
- -DarchetypeGroupId=com.adobe.granite.archetypes ^
- -DarchetypeArtifactId=aem-project-archetype ^
- -DarchetypeVersion=38 ^
- -DgroupId=com.example ^
- -DartifactId=my-aem-project ^
- -Dversion=1.0.0-SNAPSHOT ^
- -Dpackage=com.example.project ^
- -DappsFolderName=myapp ^
- -DartifactName="My AEM Project" ^
- -DcomponentGroupName="MyApp Components" ^
- -DconfFolderName=myapp ^
- -DcontentFolderName=myapp ^
- -DslashAppsFolderName=/apps/myapp ^
- -DslashConfFolderName=/conf/myapp ^
- -DslashContentFolderName=/content/myapp
+Note:
+	-B use to create cmd in batch
+	-D use to this are system properties.
+	 n no
+Steps:
+Open cmd as administrator otherwise u will get build failure. And then cd path of project folder.
+then execute below cmds.
 
-
-mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate 
- -D archetypeGroupId=com.adobe.aem 
- -D archetypeArtifactId=aem-project-archetype 
- -D archetypeVersion=40 
- -D appTitle="Geeks Demo" 
- -D appId="geeksdemo" 
- -D groupId="com.geeks.demo" 
- -D aemVersion=6.5.5 
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+ -D archetypeGroupId=com.adobe.aem ^
+ -D archetypeArtifactId=aem-project-archetype ^
+ -D archetypeVersion=40 ^
+ -D appTitle="Geeks Demo" ^
+ -D appId="geeksdemo" ^
+ -D groupId="com.geeks.demo" ^
+ -D aemVersion=6.5.5 ^
  -D singleCountry=n
 
+
+"geeksdemo" project create inside folder.
+
+-> cd "geeksdemo" 
+-> mvn clean install -PautoInstallPackage
+
+-> Before that u will not able to seen "geeksdemo" on dashboard.
+mvn clean install -PautoInstallPackage
+After that can see.
+
+-> U can see pages which are coming from ui.context
+
+// Creating loginRegister Project
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+ -D archetypeGroupId=com.adobe.aem ^
+ -D archetypeArtifactId=aem-project-archetype ^
+ -D archetypeVersion=40 ^
+ -D appTitle="AEM Login Register" ^
+ -D appId="loginregisterdemo" ^
+ -D groupId=com.idealake ^
+ -D aemVersion=6.5.5 ^
+ -D singleCountry=n ^
+ -D artifactId=aem-login-register  ^
+ -D version=1.0.0-SNAPSHOT ^
+ -D package=com.idealake.loginregister ^
+ -D appsFolderName=loginregister  ^
+ -D artifactName="AEM Login Register" ^
+ -D componentGroupName="LoginRegister Components" ^
+ -D contentFolderName=loginregister ^
+ -D confFolderName=loginregister ^
+ -D slashAppsFolderName=/apps/loginregister ^
+ -D slashConfFolderName=/conf/loginregister ^
+ -D slashContentFolderName=/content/loginregister ^
+ -D siteName="Login Register Site"
+ 
+
+=================== System console ======================
+go to "http://localhost:4502/system/console/bundles"
+
+
+
+Go to core -> all java/backend code 
+dispatcher -> some configurations when using cloud 
+it.tests -> integration test while build
+ui-apps -> keep all components, slightly, client lib, workflow
+		project specific info. will be stored inside this folder.
+ui-apps-structure -> define structure of project
+ui-config -> OSGI configuration will stored inside this folder.
+ui-content -> when want to deploy some assets, content in pro. deploy or create here.
+ui-frontend -> all frontent related code here. clientlib has been created and moved to /apps
 
 31-12-2024 AEM Authors and Publisher #1 AEM CRXDE
 03-01-2025 AEM Authors and Publisher #2 AEM Assets
@@ -763,28 +935,143 @@ Ranking:1
 Allowed Paths: /content (first page when u open site)
  
  
- 
+
+=====================================
+27/01/2025  AEM review
+=====================================
+
+1. AEM Sites
+
+Content Pages - home page and other content pages
+
+2. AEM Assets
+
+Metadata schema
+
+Asset Search
+
+Asset Renditions
+
+Asset Home Page Experience
+
+Duplicate Detection
+
+Asset Upload Restriction
+
+3. Content Authoring
+
+Core Components
+
+Custom Components
+
+Editable Templates
+
+Content Fragments
+
+Experience Fragments
+
+4. Presentation Layer
+
+HTL - HTML Template Language
+
+Clientlibs
+
+5. Operations
+
+Custom Logger
+
+Package Manager
+
+Single Sign-On
+
+Replication Agents
+
+AEM Dispatchers
+
+6. Processes
+
+AEM Workflows
+
+Runmodes
+
+Sling resolution
+
+7. APIs
+
+GraphQL API
+
+Sling Models JSON Exporter
+
+8. Multi-domain / Multi-Lingual
+
+MSM Language Copy
+
+MSM Live Copy
+
+MSM Live Copy Overview
+
+9. SEO
+
+Core Components Sitemap XML
+
+Page Properties
+
+
+===== ui.frontend module =========
+this module uses a webpack build framwwork.
+
+aem-clientlib-generator is node module used to generate client library.
+
+     ui.apps
+	||
+	|| clientlibs
+	||
+  ui.frontend-> resources
+	     -> Js
+	     -> css/JS
 
 
 
+=====================================
+28/01/2025  AEM sling
+=====================================
+
+sling models are pure POJO which are automatically mapped from sling objects, typically resource and request objects.
+we can also inject OSGi services in these models.
+
+GTpSmwYelrm0RFHY
+mongodb+srv://shubhamwalunj:<db_password>@test-pro-db.bolag.mongodb.net/?retryWrites=true&w=majority&appName=test-pro-db
 
 
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+  -D archetypeGroupId=com.adobe.aem ^
+  -D archetypeArtifactId=aem-project-archetype ^
+  -D archetypeVersion=39 ^
+  -D appTitle="AEM Login Register" ^
+  -D appId="loginregisterdemo" ^
+  -D groupId=com.example ^
+  -D artifactId=aem-login-register-app ^
+  -D version=1.0-SNAPSHOT ^
+  -D package=com.example.aem ^
+  -D appsFolderName=login-register-app ^
+  -D artifactName="AEM Login Register App" ^
+  -D componentGroupName="Login Register App" ^
+  -D contentFolderName=login-register-app ^
+  -D cssId=login-register-app ^
+  -D packageGroup=login-register-app
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+    -D archetypeGroupId=com.adobe.aem ^
+    -D archetypeArtifactId=aem-project-archetype ^
+    -D archetypeVersion=39 ^
+    -D appTitle="WKND Sites Project" ^
+    -D appId="wknd" ^
+    -D groupId="com.adobe.aem.guides" ^
+    -D artifactId="aem-guides-wknd" ^
+    -D package="com.adobe.aem.guides.wknd" ^
+    -D version="0.0.1-SNAPSHOT" ^
+    -D aemVersion="cloud"
 
 
 
