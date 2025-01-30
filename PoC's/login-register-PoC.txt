@@ -1,0 +1,86 @@
+====================================================================
+====================================================================
+                    Authentication Service Module 
+====================================================================
+====================================================================
+	PROJECT
+====================================================================
+AEM Instance: Ensure you have an AEM instance running locally or on a server.
+
+Java Development Kit (JDK): Install JDK 11.
+
+Maven: Install Apache Maven 3.8.8 for building the project.
+
+IDE: Use an IDE like IntelliJ IDEA for development.
+
+Node: Install Node latest version v22.13.0 for frontend modules.
+
+====================================================================
+====================================================================
+	SET UP THE AEM PROJECT
+====================================================================
+1.	Create a Maven Project:
+	
+	** Why maven archetype in AEM?
+	-> Maven template that creates a minimal, best practices based AEM project as a starting point for website.
+
+	Use the AEM Maven Archetype to create a new project.
+	
+	Go to Folder destination "AEM Projects". Copy path.
+	
+	Open command prompt in administrator and cd path.
+
+	Run the following command in terminal:
+
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+ -D archetypeGroupId=com.adobe.aem ^
+ -D archetypeArtifactId=aem-project-archetype ^
+ -D archetypeVersion=40 ^
+ -D appTitle="AEM Login Register" ^
+ -D appId="loginregisterdemo" ^
+ -D groupId=com.idealake ^
+ -D aemVersion=6.5.5 ^
+ -D singleCountry=n ^
+ -D artifactId=aem-login-register  ^
+ -D version=1.0.0-SNAPSHOT ^
+ -D package=com.idealake.loginregister ^
+ -D appsFolderName=loginregister  ^
+ -D artifactName="AEM Login Register" ^
+ -D componentGroupName="LoginRegister Components" ^
+ -D contentFolderName=loginregister ^
+ -D confFolderName=loginregister ^
+ -D slashAppsFolderName=/apps/loginregister ^
+ -D slashConfFolderName=/conf/loginregister ^
+ -D slashContentFolderName=/content/loginregister ^
+ -D siteName="Login Register Site"
+
+	cd project "aem-login-register"
+
+	Build the project:
+	Run the following command in terminal: // "autoInstallPackage" This profile will deploy all packages on local machine.
+	mvn clean install -PautoInstallPackage
+
+	Can create multiple build for multiple updates.
+	To build specific version run the following command:
+	mvn clean install -Dbuild.version=1.1.0
+
+mvn -B archetype:generate -D archetypeGroupId=com.adobe.aem -D archetypeArtifactId=aem-project-archetype -D archetypeVersion=39 -D aemVersion=6.5.0 -D appTitle=”My Adobe Project” -D appId=”practice” -D groupId=”com.aem_training” -D frontendModule=general -D includeExamples=n
+
+mvn org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+    -DarchetypeGroupId=com.adobe.granite.archetypes ^
+    -DarchetypeArtifactId=aem-project-archetype ^
+    -DarchetypeVersion=35 ^
+    -DarchetypeCatalog=https://repo.adobe.com/nexus/content/groups/public/
+
+mvn -B archetype:generate ^
+ -D archetypeGroupId=com.adobe.aem ^
+ -D archetypeArtifactId=aem-project-archetype ^
+ -D aemVersion=6.5.5 ^
+ -D frontendModule=none ^
+ -D includeDispatcherConfig=n ^
+ -D archetypeVersion=25 ^
+ -D appTitle="Demo AEM" ^
+ -D appId="demo-aem" ^
+ -D groupId="com.demo-aem" 
+	
+

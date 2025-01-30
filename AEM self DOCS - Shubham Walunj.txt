@@ -13,6 +13,8 @@ Installation:
 Run command to install author:
 java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=30303 -XX:MaxPermSize=256M -Xmx1024m -Dorg.apache.sling.commons.log.level=INFO -jar aem-author-p4502.jar -p 4502 -verbose -nofork
  
+Stop AEM:
+java -jar aem-author-p4502.jar stop
 
 CMS(Content Management System)->
 	-> provides most of the infrastructure
@@ -1072,6 +1074,110 @@ mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
     -D package="com.adobe.aem.guides.wknd" ^
     -D version="0.0.1-SNAPSHOT" ^
     -D aemVersion="cloud"
+
+=====================================
+29/01/2025  frontend module
+=====================================
+This module based on webpack.
+webpack -> build framework
+aem-clientlib-generator -> node module to generate client library.
+
+ui.frontend module is responsible to write HTML, CSS, Js code , compile and generate client library.
+
+ui.frontend->
+ ->src/main/webpack
+	/components
+	/resources
+	/site
+		/styles
+		main.ts
+	/static
+		index.html
+ ->package.json -> node configuration
+ ->webpack.common.js
+ ->clientlib.config.js
+
+
+=====================================
+30/01/2025  Sling resource type
+=====================================
+
+Each resource has a resource type which is used by the servlet 
+and script resolver to find appropriate servlet or script to handle the request for the resource.
+
+Super resource type: this property is used for inheritance.
+sling:resourceSuperType
+
+
+=====================================
+Editable template
+=====================================
+Template
+cq:Template
+cq:TemplateType
+
+/conf
+	/geeksdemo
+		/settings.xml
+			/wcm
+				templates[cq:Page] (all templates)
+				policies[cq:Page]
+				template-type[cq:Page] (which are under avai. for templates)
+
+
+Creating templates manually:
+Go to tools->conf manager->create -> name of template & type:editable template-> OK
+
+Static Template->
+Only developers can create/modify template.
+components can be removed from pages.
+use design nodes to store template level properties and other configuration.
+
+Editable Template->
+Template authors can create/update templates.
+components can/can not be removed from pages.
+policies to store template level configuration.
+
+=====================================
+Component with Sling Model
+=====================================
+
+-> user content    ---- Dialog
+-> Acces content    ---- Sling Model
+-> Styling   ---- clientlibs
+-> Rendering    ---- Slightly/HTL
+
+AEM component cycle
+
+	(AUTHORING)
+Dialog-Authoring Component
+Save content in Repository
+	|| || ||
+	   ||
+	(RENDERING)
+Sling Model-Access Content for repository
+Page Reload-Load clientlibs(CSS/JS)
+Slightly load content from Sling Model in Component
+
+
+AEM OutOf Componets=> 
+1) Foundation components
+2) Core components
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
