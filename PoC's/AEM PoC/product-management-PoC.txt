@@ -1,0 +1,274 @@
+=============================================================================================================================================================================================================================================
+											IDEALAKE INFORMATION TECHNOLOGIES PVT. LTD.
+=============================================================================================================================================================================================================================================
+                                                              Proof of Concept (PoC) for a Product Management System using AEM, Angular, MySQL, and Java. -Shubham Walunj
+=============================================================================================================================================================================================================================================
+=============================================================================================================================================================================================================================================
+Project Overview
+=============================================================================================================================================================================================================================================
+This PoC demonstrates a Product Management System where users can perform CRUD (Create, Read, Update, Delete) operations on products using:
+
+AEM (Adobe Experience Manager 6.2+) as the backend content management system.
+Spring Boot (Java) as the backend REST API that communicates with MySQL.
+Angular 18 as the frontend for managing products.
+
+=============================================================================================================================================================================================================================================
+=============================================================================================================================================================================================================================================
+Technology Stack
+=============================================================================================================================================================================================================================================
+Frontend: Angular 18 (TypeScript, Angular Material)
+Backend: AEM 6.2 (Java, OSGi services) & Spring Boot
+Database: MySQL
+Authentication: OAuth 2.0 or JWT (if needed)
+Build Tools: Maven for AEM, Gradle/Maven for Spring Boot
+State Management: NgRx (Optional)
+Deployment: AEM Author & Publish instances
+
+=============================================================================================================================================================================================================================================
+=============================================================================================================================================================================================================================================
+Project Modules:
+=============================================================================================================================================================================================================================================
+Frontend (Angular):
+=============================================================================================================================================================================================================================================
+Product List Page
+Add Product Form
+Edit Product Page
+Delete Product Feature
+=============================================================================================================================================================================================================================================
+Backend (Spring Boot + AEM):
+=============================================================================================================================================================================================================================================
+AEM component to manage products
+REST API using Spring Boot for CRUD operations
+MySQL database integration
+
+=============================================================================================================================================================================================================================================
+=============================================================================================================================================================================================================================================
+Step-by-Step Implementation
+=============================================================================================================================================================================================================================================
+Step 1: Setting Up AEM Backend
+=============================================================================================================================================================================================================================================
+1.1 Create a Product Model in AEM
+In AEM CRXDE, create a Product Content Model under /apps/myproject/components/product with:
+
+xml code:
+<jcr:root xmlns:jcr="http://www.jcp.org/jcr/1.0"
+    jcr:primaryType="cq:Component"
+    jcr:title="Product Component"
+    sling:resourceSuperType="foundation/components/parbase">
+</jcr:root>
+
+1.2 Create OSGi Service for Product Storage
+Create an OSGi service in AEM for handling CRUD operations on MySQL database.
+
+java code:
+@Component(service = ProductService.class)
+@Designate(ocd = ProductService.Config.class)
+public class ProductService {
+  
+    @Reference
+    private DataSourcePool dataSourcePool;
+
+    private DataSource dataSource;
+
+    @Activate
+    protected void activate(Config config) {
+        try {
+            dataSource = (DataSource) dataSourcePool.getDataSource("productdb");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Product> getAllProducts() throws SQLException {
+        List<Product> products = new ArrayList<>();
+        Connection conn = dataSource.getConnection();
+        PreparedStatement stmt = conn.prepareStatement("SELECT * FROM products");
+        ResultSet rs = stmt.executeQuery();
+        
+        while (rs.next()) {
+            products.add(new Product(rs.getInt("id"), rs.getString("name"), rs.getDouble("price")));
+        }
+        return products;
+    }
+}
+
+=============================================================================================================================================================================================================================================
+Step 2: Setting Up Spring Boot API
+=============================================================================================================================================================================================================================================
+Create a Spring Boot project with Spring Data JPA and MySQL integration.
+
+2.1 Define Product Entity
+
+java code:
+@Entity
+@Table(name = "products")
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private String name;
+    private Double price;
+    
+    // Constructors, Getters & Setters
+}
+
+2.2 Create Repository Layer
+java code:
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+}
+
+2.3 Create Product Controller
+java code:
+@RestController
+@RequestMapping("/api/products")
+public class ProductController {
+    
+    @Autowired
+    private ProductRepository productRepository;
+
+    @GetMapping
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    @PostMapping
+    public Product createProduct(@RequestBody Product product) {
+        return productRepository.save(product);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
+        Product product = productRepository.findById(id).orElseThrow();
+        product.setName(productDetails.getName());
+        product.setPrice(productDetails.getPrice());
+        return ResponseEntity.ok(productRepository.save(product));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
+        productRepository.deleteById(id);
+        return ResponseEntity.ok().build();
+    }
+}
+
+=============================================================================================================================================================================================================================================
+Step 3: Setting Up MySQL Database
+=============================================================================================================================================================================================================================================
+Create a MySQL database and table:
+sql code:
+CREATE DATABASE productdb;
+USE productdb;
+
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    price DOUBLE
+);
+
+Update application.properties:
+properties :
+spring.datasource.url=jdbc:mysql://localhost:3306/productdb
+spring.datasource.username=root
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
+
+=============================================================================================================================================================================================================================================
+Step 4: Setting Up Angular Frontend
+=============================================================================================================================================================================================================================================
+Run:
+ng new product-management
+cd product-management
+ng add @angular/material
+ng g component product-list
+ng g component product-form
+
+4.1 Create Product Model
+typescript code:
+export interface Product {
+  id?: number;
+  name: string;
+  price: number;
+}
+
+4.2 Create Product Service
+typescript code:
+@Injectable({ providedIn: 'root' })
+export class ProductService {
+  private apiUrl = 'http://localhost:8080/api/products';
+
+  constructor(private http: HttpClient) {}
+
+  getProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(this.apiUrl);
+  }
+
+  addProduct(product: Product): Observable<Product> {
+    return this.http.post<Product>(this.apiUrl, product);
+  }
+
+  updateProduct(id: number, product: Product): Observable<Product> {
+    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
+  }
+
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
+
+4.3 Create Product List Component
+typescript code:
+@Component({ selector: 'app-product-list', templateUrl: './product-list.component.html' })
+export class ProductListComponent implements OnInit {
+  products: Product[] = [];
+
+  constructor(private productService: ProductService) {}
+
+  ngOnInit() {
+    this.productService.getProducts().subscribe(data => (this.products = data));
+  }
+
+  deleteProduct(id: number) {
+    this.productService.deleteProduct(id).subscribe(() => {
+      this.products = this.products.filter(p => p.id !== id);
+    });
+  }
+}
+
+4.4 Create Product List Template
+html code:
+<table mat-table [dataSource]="products" class="mat-elevation-z8">
+  <tr *ngFor="let product of products">
+    <td>{{ product.name }}</td>
+    <td>{{ product.price }}</td>
+    <td>
+      <button mat-button (click)="deleteProduct(product.id)">Delete</button>
+    </td>
+  </tr>
+</table>
+
+=============================================================================================================================================================================================================================================
+Step 5: Running the Application
+=============================================================================================================================================================================================================================================
+Start MySQL Database
+sh :
+mysql -u root -p
+
+Run Spring Boot Backend
+sh : 
+mvn spring-boot:run
+
+Run Angular Frontend
+sh :
+ng serve
+
+Deploy AEM Components
+sh :
+mvn clean install -PautoInstallPackage
+
+=============================================================================================================================================================================================================================================
+=============================================================================================================================================================================================================================================
+Conclusion
+=============================================================================================================================================================================================================================================
+This PoC successfully integrates AEM, Angular, Spring Boot, and MySQL to create a Product Management System with full CRUD operations. It provides a scalable foundation for further enhancements like authentication, role-based access, and analytics.

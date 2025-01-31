@@ -16,6 +16,13 @@ java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server
 Stop AEM:
 java -jar aem-author-p4502.jar stop
 
+============================================================================
+How to run AEM in Debug mode?
+============================================================================
+java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=30303 -XX:MaxPermSize=256M -Xmx1024m -Dorg.apache.sling.commons.log.level=INFO -jar aem-author-p4502.jar -p 4502 -verbose -nofork
+
+
+============================================================================
 CMS(Content Management System)->
 	-> provides most of the infrastructure
 	-> reusability
@@ -1074,6 +1081,18 @@ mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
     -D package="com.adobe.aem.guides.wknd" ^
     -D version="0.0.1-SNAPSHOT" ^
     -D aemVersion="cloud"
+
+mvn -B org.apache.maven.plugins:maven-archetype-plugin:3.2.1:generate ^
+	-D archetypeGroupId=com.adobe.aem ^
+	-D archetypeArtifactId=aem-project-archetype ^
+	-D archetypeVersion=39 ^
+	-D appTitle="Authentication Module ^
+	-D appId="authentication_module" ^
+	-D groupId="com.adobe.aem.authentication" ^
+	-D artifactId ="Authentication_Module" ^
+	-D package="com.adobe.aem.authentication.module" ^
+	-D version="0.0.1-SNAPSHOT" ^
+	-D aemVersion="6.1.0"
 
 =====================================
 29/01/2025  frontend module
